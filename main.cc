@@ -29,14 +29,14 @@ int main (int argc, char **argv)
 
   // Job job_array[q_size];
   //
-  // int mutex = 1;
+  int mutex = 1;
   // int sem_empty = 1;
   // int sem_full = 1;
 
   pthread_t** producers = new pthread_t*[n_producers];
   for (int i = 0; i < n_producers; i++) {
     producers[i] = new pthread_t;
-    pthread_create (producers[i], NULL, producer, (void*) &param);
+    pthread_create (producers[i], NULL, producer, (void*) &mutex);
   }
 
   pthread_t** consumers = new pthread_t*[n_consumers];
@@ -48,34 +48,42 @@ int main (int argc, char **argv)
   pthread_exit(0);
 
   /* ~~~ EXAMPLE THREAD ~~~ */
-  int parameter = 5;
-
-  pthread_t producerid;
-
-  pthread_create (&producerid, NULL, producer, (void *) &parameter);
-
-  pthread_join (producerid, NULL);
-  //pthread_exit ((void*)producerid);
-  //exit(0);
-
-  cout << "Doing some work after the exit/join" << endl;
-
-  return 0;
+  // int parameter = 5;
+  //
+  // pthread_t producerid;
+  //
+  // pthread_create (&producerid, NULL, producer, (void *) &parameter);
+  //
+  // pthread_join (producerid, NULL);
+  // //pthread_exit ((void*)producerid);
+  // //exit(0);
+  //
+  // cout << "Doing some work after the exit/join" << endl;
+  //
+  // return 0;
 }
 
-void *producer (void *parameter)
+void *producer (void *mutex)
 {
 
   // TODO
+  int* mute = (int*) mutex;
+  wait(*mute);
 
-  int *param = (int *) parameter;
+  cout << "entering critical region" << endl;
+  cout << "exiting critical region" << endl;
 
-  cout << "Parameter = " << *param << endl;
-
-  sleep (2);
-  cout << "That was a good sleep - thank you" << endl;
+  signal(*mute);
 
   pthread_exit(0);
+  // int *param = (int *) parameter;
+  //
+  // cout << "Parameter = " << *param << endl;
+  //
+  // sleep (2);
+  // cout << "That was a good sleep - thank you" << endl;
+  //
+  // pthread_exit(0);
 }
 
 void *consumer (void *id)
