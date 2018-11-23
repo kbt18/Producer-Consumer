@@ -1,0 +1,40 @@
+- read arguments
+- check arguments
+- initialise ring buffer (array)
+- initialize semaphores (mutex)
+- initialize producer threads
+- initialise consumer threads
+- clean up threads
+- exit
+
+- check arguments
+  - check argument is positive integer
+    - bool is_integer(const char* string)
+      - while not at end of string
+        - if character is not numeric
+          - return false
+        - return true
+
+- read arguments
+  - get all arguments
+
+- initialise ring buffer
+  - Job job_array[q_size];
+
+- initialize Semaphores
+  - int mutex
+  - int sem_empty
+  - int sem_full
+
+- initialise producer threads
+pthread_t* producers = new pthread_t[n_producers];
+  - for (i = 0; i < n_producers; i++)
+      (producers* + i) = new pthread_t;
+      pthread_create (producers* + i, NULL, producer, (void*) &parameter);
+
+  - ditto for consumer threads
+
+- clean threads
+  - join producers in loop
+  - join consumers in loop
+  - pthread_exit

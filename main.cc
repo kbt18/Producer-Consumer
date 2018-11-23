@@ -10,22 +10,55 @@ void *consumer (void *id);
 
 int main (int argc, char **argv)
 {
-  int q_size, n_jobs, n_producers, n_consumers;
-  //check command line input is valid (numeric integers)
 
-  // q_size = (int)*(argv + 1);
-  // n_jobs = (int)*(argv + 2);
-  // n_producers = (int)*(argv + 3);
-  // n_consumers = (int)*(argv + 4);
+  if (argc != 5) {
+    cerr << "incorrect number of command line arguments" << endl;
+    return(1);
+  }
+
+  for (int i = 1; i < argc; i++) {
+    if (!is_integer(argv[i])) {
+      cerr << "invalid command line argument" << endl;
+      return(1);
+    }
+  }
+
+  int q_size = atoi(argv[1]), n_jobs = atoi(argv[2]);
+  int n_producers = atoi(argv[3]), n_consumers = atoi(argv[4]);
+  int param = 1;
+
+  // Job job_array[q_size];
+  //
+  // int mutex = 1;
+  // int sem_empty = 1;
+  // int sem_full = 1;
+
+  pthread_t** producers = new pthread_t*[n_producers];
+  for (int i = 0; i < n_producers; i++) {
+    producers[i] = new pthread_t;
+    pthread_create (producers[i], NULL, producer, (void*) &param);
+  }
+
+  pthread_t** consumers = new pthread_t*[n_consumers];
+  for (int i = 0; i < n_consumers; i++) {
+    consumers[i] = new pthread_t;
+    pthread_create (consumers[i], NULL, consumer, (void*) &param);
+  }
+
+  pthread_exit(0);
 
   /* ~~~ EXAMPLE THREAD ~~~ */
-  int parameter = 5
+  int parameter = 5;
 
   pthread_t producerid;
 
   pthread_create (&producerid, NULL, producer, (void *) &parameter);
 
   pthread_join (producerid, NULL);
+  //pthread_exit ((void*)producerid);
+  //exit(0);
+
+  cout << "Doing some work after the exit/join" << endl;
 
   return 0;
 }
@@ -38,6 +71,9 @@ void *producer (void *parameter)
   int *param = (int *) parameter;
 
   cout << "Parameter = " << *param << endl;
+
+  sleep (2);
+  cout << "That was a good sleep - thank you" << endl;
 
   pthread_exit(0);
 }

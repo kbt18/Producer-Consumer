@@ -64,3 +64,25 @@ int sem_close (int id)
     return -1;
   return 0;
 }
+
+// ~~~ MY HELPER FUNCTIONS ~~~ //
+bool is_integer(const char* c_string) {
+  while (*c_string != '\0') {
+    if (!isdigit(*c_string)) {
+      //cerr << *c_string << endl;
+      return false;
+    }
+    c_string++;
+  }
+  return true;
+}
+
+// ~~~ TEST CODE ~~~ //
+void wait(int& semaphore) {
+  while (semaphore == 0);
+  semaphore--;
+}
+
+void signal(int& semaphore) {
+  semaphore++;
+}

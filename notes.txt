@@ -10,6 +10,19 @@ and number of consumers.
 MAIN FUNCTION:
 bool input_is_valid()
 void assign_input()
+RingBuffer buff = RingBuffer;
+int sem_id = sem_create()
+
+need 3 semaphores:
+1 binary for accessing the critical section
+1 counting for empty
+1 counting for full
+
+Semaphore sem = Semaphore;
+
+for(i = 0; i < n_producers; i++)
+  pthread_create (producerid, )
+
 
 2. Producer
 (a) Initialise parameters, as required.
@@ -22,13 +35,29 @@ available after 20 seconds, quit, even though you have not produced all the jobs
 (d) Quit when there are no more jobs left to produce.
 
 PRODUCER:
+producer array?
 struct Job { ???
 int Duration
 int id?
 }
 create_jobs()
+
 for(i = 0; i < n_jobs; i++)
-  add_job()
+  insert_buffer(job)
+
+do{
+
+//produce an item
+
+wait(empty);
+wait(mutex);
+
+//place in buffer
+
+signal(mutex);
+signal(full);
+
+}while(true)
 
 Job create_job()?
 void add_job()
@@ -47,3 +76,57 @@ and if not, quit.
 CONSUMER:
 void get_job()
 void sleep()
+
+do{
+
+wait(full);
+wait(mutex);
+
+// remove item from buffer
+
+signal(mutex);
+signal(empty);
+
+// consumes item
+
+}while(true)
+
+
+
+// LECTURE NOTES //
+User-level threads
+  faster than kernel level threads
+  kernel does not see threads
+  blocks whole processpthreads
+
+- PThreads
+  - POSIX (Portable Operating System Interface)
+  - Standardised threading model
+  - can create in a for loop
+  - use an array to hold multiple thread ID's
+  - use a struct to pass multiple variables to a thread
+
+- Exiting Threads
+  - terminates execution after call
+  - phtread_exit(0);
+  - terminates calling thread and returns value argument
+  - pthread_exit() in main -> zombie state ??
+  - call pthread_exit in main (good practice as it waits for
+  other threads to finish) better than exit(0) as this will
+  immediately terminate all threads which could be dangerous.
+
+- Thread Yield
+  - pthread_yield();
+  - releases cpu
+  - return 0 on success, or an error code
+  - good practice to use when finished thread execution
+  - call within thread function
+  - (temporary yield)
+  - used for heirarchical access to cpu
+
+- Thread Join
+  - wait for thread to finish and exit main program
+  - waiting for a thread you are joining with to
+    finish (block until then)
+  - Does not exit main thread
+  - can still continue execution in main after joining

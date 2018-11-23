@@ -29,9 +29,21 @@ union semun {
     ushort *array;         /* used for GETALL and SETALL */
 };
 
+struct Job {
+  int id;
+  int difficulty;
+};
+
 int check_arg (char *);
 int sem_create (key_t key, int num);
 int sem_init (int id, int num, int value);
 void sem_wait (int, short unsigned int);
 void sem_signal (int, short unsigned int);
 int sem_close (int);
+
+// ~~~ MY HELPER FUNCTIONS ~~~ //
+bool is_integer(const char* c_string);
+
+// ~~~ TEST CODE ~~~ //
+void wait(int& semaphore);
+void signal(int& semaphore);
