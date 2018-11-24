@@ -1,0 +1,80 @@
+- Process Communication & Synchronisation
+
+
+- Process Interaction
+  - shared object: requires mutually exclusive
+    access to prevent interference
+  - Synchronisation: p1 informs p2 that something
+    has happened
+  - Communication: p1 sends p2 data. p1 blocks
+    when buffer is full, p2 blocks when buffer is
+    empty
+
+- IPC Mechanism (inter process Communication)
+  - kernel has to have ability to send signals
+    to any process, otherwise user could take
+    over the system.
+
+- Signal Generation
+  - div by zero: SIGFPE
+  - Ctrl-C: SIGINT
+  - etc
+  - killall <process_name>
+  - default action for most signals is to terminate
+    process
+  -
+
+- UNIX Pipes
+  - one way communication
+  - ls -l | less
+  - paginate a long piece of text
+  - second process blocks until first process is complete
+
+- Sockets
+  - bidirectional communication
+  - both local and network communication
+
+- Shared Memory
+  -
+
+- Shared Data
+  - Any time you have a shared resource, need to control
+    access.
+  - Critical Section: must have a read and update
+  - Any solution to critical section problem must satisfy:
+    - Mutual Exclusion
+      - Process must request permissino to enter critical
+        section
+    - Progress
+      - when process finished, any other process
+        should be allowed to enter immediately
+    - Bounded Waiting
+      - no process requiring access can be delayed forever
+
+- Critical Section
+  - Disabling inter
+
+
+
+  - Disabling interrupts: not a good idea as programs can
+    stop working
+  -
+
+
+- Atomic Operations
+  - operations that appear to be atomic may not acutally be.
+  - need to think at machine code level
+
+- Test and Set Lock Instruction
+  - TSL(LOCK)
+  - void lock(int L)
+    {
+      while (TLS(L) != 0)
+        /* wait */;
+    } // Still busy waiting
+
+- Lock Granularity
+  - More granularity = more complexity
+
+- Semaphores
+  - 

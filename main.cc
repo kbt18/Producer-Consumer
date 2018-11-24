@@ -28,15 +28,19 @@ int main (int argc, char **argv)
   int param = 1;
 
   // Job job_array[q_size];
-  //
-  int mutex = 1;
-  // int sem_empty = 1;
-  // int sem_full = 1;
+
+  // create semaphores
+  key_t sem_key = SEM_KEY;
+  cout << sem_key << endl;
+  int semid = sem_create(sem_key, 3);
+  sem_init(semid, 0, 1); //mutex
+  sem_init(semid, 1, 0); //full
+  sem_init(semid, 2, q_size); //empty
 
   pthread_t** producers = new pthread_t*[n_producers];
   for (int i = 0; i < n_producers; i++) {
     producers[i] = new pthread_t;
-    pthread_create (producers[i], NULL, producer, (void*) &mutex);
+    pthread_create (producers[i], NULL, producer, (void*) &semid);
   }
 
   pthread_t** consumers = new pthread_t*[n_consumers];
@@ -45,6 +49,13 @@ int main (int argc, char **argv)
     pthread_create (consumers[i], NULL, consumer, (void*) &param);
   }
 
+  for (int i = 0; i < n_producers; i++)
+    pthread_join(*producers[i], NULL);
+
+  for (int i = 0; i < n_consumers; i++)
+    pthread_join(*consumers[i], NULL);
+
+  sem_close(semid);
   pthread_exit(0);
 
   /* ~~~ EXAMPLE THREAD ~~~ */
@@ -63,17 +74,19 @@ int main (int argc, char **argv)
   // return 0;
 }
 
-void *producer (void *mutex)
+void *producer (void *parameter)
 {
 
   // TODO
-  int* mute = (int*) mutex;
-  wait(*mute);
 
-  cout << "entering critical region" << endl;
-  cout << "exiting critical region" << endl;
+  int* semid = (int*) parameter;
+  sem_wait(*semid, 0);
 
-  signal(*mute);
+  // cout << *semid << endl;
+  cout << "entering critical section" << endl;
+  cout << "exiting critical section" << endl;
+
+  sem_signal(*semid, 0);
 
   pthread_exit(0);
   // int *param = (int *) parameter;

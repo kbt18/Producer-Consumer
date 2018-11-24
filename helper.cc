@@ -78,11 +78,3 @@ bool is_integer(const char* c_string) {
 }
 
 // ~~~ TEST CODE ~~~ //
-void wait(int& semaphore) {
-  while (semaphore == 0);
-  semaphore--;
-}
-
-void signal(int& semaphore) {
-  semaphore++;
-}

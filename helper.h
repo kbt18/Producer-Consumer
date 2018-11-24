@@ -4,7 +4,6 @@
  * the semaphore values (which are to be changed as needed).
  ******************************************************************/
 
-
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -21,7 +20,7 @@
 # include <iostream>
 using namespace std;
 
-# define SEM_KEY 0x8465 // Change this number as needed
+# define SEM_KEY 0x15; // Change this number as needed
 
 union semun {
     int val;               /* used for SETVAL only */
@@ -45,5 +44,3 @@ int sem_close (int);
 bool is_integer(const char* c_string);
 
 // ~~~ TEST CODE ~~~ //
-void wait(int& semaphore);
-void signal(int& semaphore);
