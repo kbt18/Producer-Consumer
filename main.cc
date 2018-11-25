@@ -11,16 +11,10 @@ void *consumer (void *id);
 int main (int argc, char **argv)
 {
 
-  if (argc != 5) {
-    cerr << "incorrect number of command line arguments" << endl;
-    return(1);
-  }
-
-  for (int i = 1; i < argc; i++) {
-    if (!is_integer(argv[i])) {
-      cerr << "invalid command line argument" << endl;
-      return(1);
-    }
+  try {
+    valid_input(argc, argv);
+  } catch (int i) {
+    return i;
   }
 
   int q_size = atoi(argv[1]), n_jobs = atoi(argv[2]);
@@ -30,9 +24,8 @@ int main (int argc, char **argv)
   // Job job_array[q_size];
 
   // create semaphores
-  key_t sem_key = SEM_KEY;
-  cout << sem_key << endl;
-  int semid = sem_create(sem_key, 3);
+  key_t semkey = SEM_KEY;
+  int semid = sem_create(semkey, 3);
   sem_init(semid, 0, 1); //mutex
   sem_init(semid, 1, 0); //full
   sem_init(semid, 2, q_size); //empty
@@ -80,6 +73,7 @@ void *producer (void *parameter)
   // TODO
 
   int* semid = (int*) parameter;
+
   sem_wait(*semid, 0);
 
   // cout << *semid << endl;

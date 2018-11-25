@@ -3,6 +3,8 @@
  * required header files, as well as the function signatures and
  * the semaphore values (which are to be changed as needed).
  ******************************************************************/
+// #include <signal.h>
+// #include <semaphore.h>
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -28,11 +30,6 @@ union semun {
     ushort *array;         /* used for GETALL and SETALL */
 };
 
-struct Job {
-  int id;
-  int difficulty;
-};
-
 int check_arg (char *);
 int sem_create (key_t key, int num);
 int sem_init (int id, int num, int value);
@@ -41,6 +38,24 @@ void sem_signal (int, short unsigned int);
 int sem_close (int);
 
 // ~~~ MY HELPER FUNCTIONS ~~~ //
+struct Job {
+  int id;
+  int duration;
+};
+
+struct Producer_parameters {
+  int n_jobs;
+  int semid;
+};
+
+// void sem_timedwait (int id, short unsigned int num, int time);
+
+// struct timespec {
+//     time_t tv_sec;      /* Seconds */
+//     long   tv_nsec;     /* Nanoseconds [0 .. 999999999] */
+// };
+
 bool is_integer(const char* c_string);
+void valid_input(int argc, char** argv);
 
 // ~~~ TEST CODE ~~~ //

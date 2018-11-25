@@ -77,4 +77,30 @@ bool is_integer(const char* c_string) {
   return true;
 }
 
+void valid_input(int argc, char** argv) {
+  if (argc != 5) {
+    cerr << "incorrect number of command line arguments" << endl;
+    throw(1);
+  }
+
+  for (int i = 1; i < argc; i++) {
+    if (!is_integer(argv[i])) {
+      cerr << "invalid command line argument" << endl;
+      throw(1);
+    }
+  }
+}
+
+// void signal_handler( int signal_num ) {
+//    cout << "The interrupt signal is (" << signal_num << "). \n";
+//
+//    // terminate thread
+//    pthread_exit(0);
+// }
+
+// void sem_timedwait (int id, short unsigned int num, int time) {
+//   signal(SIGALRM, signal_handler);
+//   sem_wait (id, num);
+// }
+
 // ~~~ TEST CODE ~~~ //
