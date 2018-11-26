@@ -91,6 +91,13 @@ void valid_input(int argc, char** argv) {
   }
 }
 
+int sem_checkval(int id, int num) {
+  int val = semctl (id, num, GETVAL, 0);
+  if (val < 0)
+    return -1;
+  return val;
+}
+
 // void signal_handler( int signal_num ) {
 //    cout << "The interrupt signal is (" << signal_num << "). \n";
 //

@@ -30,10 +30,14 @@ int main (int argc, char **argv)
   sem_init(semid, 1, 0); //full
   sem_init(semid, 2, q_size); //empty
 
+  Producer_parameters p_params = {
+    .njobs = n_jobs,
+    .semid = semid };
+
   pthread_t** producers = new pthread_t*[n_producers];
   for (int i = 0; i < n_producers; i++) {
     producers[i] = new pthread_t;
-    pthread_create (producers[i], NULL, producer, (void*) &semid);
+    pthread_create (producers[i], NULL, producer, (void*) &p_params);
   }
 
   pthread_t** consumers = new pthread_t*[n_consumers];
@@ -71,16 +75,24 @@ void *producer (void *parameter)
 {
 
   // TODO
+  Producer_parameters* params = (Producer_parameters*) parameter;
+  int* semid = &(params->semid);
+  int* njobs = &(params->njobs);
 
-  int* semid = (int*) parameter;
-
+  sem_wait(*semid, 2);
   sem_wait(*semid, 0);
-
-  // cout << *semid << endl;
   cout << "entering critical section" << endl;
+
+  int index = sem_checkval(*semid, 1);
+  int id = index + 1;
+
+  cout << "index is " << index << endl;
+  cout << "id is " << id << endl;
+
   cout << "exiting critical section" << endl;
 
   sem_signal(*semid, 0);
+  sem_signal(*semid, 1);
 
   pthread_exit(0);
   // int *param = (int *) parameter;

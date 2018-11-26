@@ -44,9 +44,11 @@ struct Job {
 };
 
 struct Producer_parameters {
-  int n_jobs;
+  int njobs;
   int semid;
 };
+
+int sem_checkval(int id, int num);
 
 // void sem_timedwait (int id, short unsigned int num, int time);
 
