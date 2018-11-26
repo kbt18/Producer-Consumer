@@ -23,12 +23,18 @@ int main (int argc, char **argv)
   int param = 1;
 
   Job** job_array = new Job* [q_size];
+  //initialise to NULL
+  for (int i = 0; i < q_size; i++)
+    job_array[i] = NULL;
 
   // create semaphores
   key_t semkey = SEM_KEY;
   int semid = sem_create(semkey, 3);
-  if (semid < 0)
+  if (semid < 0) {
+    cout << "key error" << endl;
     return(-1);
+  }
+
   sem_init(semid, 0, 1); //mutex
   sem_init(semid, 1, 0); //full
   sem_init(semid, 2, q_size); //empty
@@ -88,22 +94,32 @@ void *producer (void *parameter)
   int* semid = &(params->semid);
   int* njobs = &(params->njobs);
 
-  Job* job = new Job;
-  job->duration = (rand() % 10) + 1;
+  while (*njobs > 0) {
+    Job* job = new Job;
+    (*njobs)--;
+    //cout << *njobs << endl;
+    job->duration = (rand() % 10) + 1;
 
-  sem_wait(*semid, 2);
-  sem_wait(*semid, 0);
-  //cout << "entering critical section" << endl;
+    sem_wait(*semid, 2);
+    sem_wait(*semid, 0);
+    //cout << "entering critical section" << endl;
+    int index = 0;
+    while (params->job_array_pointer[index] != NULL) //will always be a space
+      index++;
 
-  int index = sem_checkval(*semid, 1); //gives non-deterministic behaviour
-  job->id = index + 1;
+    //int index = sem_checkval(*semid, 1); //gives non-deterministic behaviour
+    job->id = index + 1;
 
-  params->job_array_pointer[index] = job;
-  //cout << "index is " << index << endl;
+    //cout << "adding job " << index + 1 << " at index " << index << endl;
+    params->job_array_pointer[index] = job;
+    //cout << "index is " << index << endl;
 
-  //cout << "exiting critical section" << endl << endl;
-  sem_signal(*semid, 0);
-  sem_signal(*semid, 1);
+    //cout << (params->job_array_pointer[index])->id << endl;
+    //cout << (params->job_array_pointer[index])->duration << endl;
+    //cout << "exiting critical section" << endl << endl;
+    sem_signal(*semid, 0);
+    sem_signal(*semid, 1);
+  }
 
   pthread_exit(0);
   // int *param = (int *) parameter;

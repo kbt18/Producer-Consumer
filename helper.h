@@ -22,7 +22,7 @@
 # include <iostream>
 using namespace std;
 
-# define SEM_KEY 0x25; // Change this number as needed
+# define SEM_KEY 0x39; // Change this number as needed
 
 union semun {
     int val;               /* used for SETVAL only */
