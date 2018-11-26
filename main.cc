@@ -79,17 +79,21 @@ void *producer (void *parameter)
   int* semid = &(params->semid);
   int* njobs = &(params->njobs);
 
+  Job* job = new Job;
+  job->duration = (rand() % 10) + 1;
+
   sem_wait(*semid, 2);
   sem_wait(*semid, 0);
   cout << "entering critical section" << endl;
 
   int index = sem_checkval(*semid, 1);
   int id = index + 1;
+  job->id = id;
 
   cout << "index is " << index << endl;
   cout << "id is " << id << endl;
 
-  cout << "exiting critical section" << endl;
+  cout << "exiting critical section" << endl << endl;
 
   sem_signal(*semid, 0);
   sem_signal(*semid, 1);
