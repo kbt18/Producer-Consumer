@@ -11,6 +11,7 @@ void *consumer (void *id);
 int main (int argc, char **argv)
 {
 
+  //pthread_exit(0);
   try {
     valid_input(argc, argv);
   } catch (int i) {
@@ -21,18 +22,22 @@ int main (int argc, char **argv)
   int n_producers = atoi(argv[3]), n_consumers = atoi(argv[4]);
   int param = 1;
 
-  // Job job_array[q_size];
+  Job** job_array = new Job* [q_size];
 
   // create semaphores
   key_t semkey = SEM_KEY;
   int semid = sem_create(semkey, 3);
+  if (semid < 0)
+    return(-1);
   sem_init(semid, 0, 1); //mutex
   sem_init(semid, 1, 0); //full
   sem_init(semid, 2, q_size); //empty
 
   Producer_parameters p_params = {
     .njobs = n_jobs,
-    .semid = semid };
+    .semid = semid,
+    .job_array_pointer = job_array
+  };
 
   pthread_t** producers = new pthread_t*[n_producers];
   for (int i = 0; i < n_producers; i++) {
@@ -53,6 +58,10 @@ int main (int argc, char **argv)
     pthread_join(*consumers[i], NULL);
 
   sem_close(semid);
+
+  for (int i = 0; i < q_size; i++)
+    cout << "job id " << (*job_array[i]).id << endl;
+
   pthread_exit(0);
 
   /* ~~~ EXAMPLE THREAD ~~~ */
@@ -84,17 +93,15 @@ void *producer (void *parameter)
 
   sem_wait(*semid, 2);
   sem_wait(*semid, 0);
-  cout << "entering critical section" << endl;
+  //cout << "entering critical section" << endl;
 
-  int index = sem_checkval(*semid, 1);
-  int id = index + 1;
-  job->id = id;
+  int index = sem_checkval(*semid, 1); //gives non-deterministic behaviour
+  job->id = index + 1;
 
-  cout << "index is " << index << endl;
-  cout << "id is " << id << endl;
+  params->job_array_pointer[index] = job;
+  //cout << "index is " << index << endl;
 
-  cout << "exiting critical section" << endl << endl;
-
+  //cout << "exiting critical section" << endl << endl;
   sem_signal(*semid, 0);
   sem_signal(*semid, 1);
 
