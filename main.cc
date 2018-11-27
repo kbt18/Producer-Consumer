@@ -45,6 +45,12 @@ int main (int argc, char **argv)
     .job_array_pointer = job_array
   };
 
+  Consumer_parameters c_params = {
+    .semid = semid,
+    .q_size = q_size,
+    .job_array_pointer = job_array
+  };
+
   pthread_t** producers = new pthread_t*[n_producers];
   for (int i = 0; i < n_producers; i++) {
     producers[i] = new pthread_t;
@@ -54,7 +60,7 @@ int main (int argc, char **argv)
   pthread_t** consumers = new pthread_t*[n_consumers];
   for (int i = 0; i < n_consumers; i++) {
     consumers[i] = new pthread_t;
-    pthread_create (consumers[i], NULL, consumer, (void*) &param);
+    pthread_create (consumers[i], NULL, consumer, (void*) &c_params);
   }
 
   for (int i = 0; i < n_producers; i++)
@@ -92,11 +98,11 @@ void *producer (void *parameter)
   // TODO
   Producer_parameters* params = (Producer_parameters*) parameter;
   int* semid = &(params->semid);
-  int* njobs = &(params->njobs);
+  int njobs = params->njobs;
 
-  while (*njobs > 0) {
+  while (njobs > 0) {
     Job* job = new Job;
-    (*njobs)--;
+    njobs--;
     //cout << *njobs << endl;
     job->duration = (rand() % 10) + 1;
 
@@ -109,6 +115,7 @@ void *producer (void *parameter)
 
     //int index = sem_checkval(*semid, 1); //gives non-deterministic behaviour
     job->id = index + 1;
+    printf ("Producer: job id %i duration %i\n", job->id, job->duration);
 
     //cout << "adding job " << index + 1 << " at index " << index << endl;
     params->job_array_pointer[index] = job;
@@ -132,10 +139,43 @@ void *producer (void *parameter)
   // pthread_exit(0);
 }
 
-void *consumer (void *id)
+void *consumer (void *parameter)
 {
-    // TODO
+  // TODO
+  Consumer_parameters* params = (Consumer_parameters*) parameter;
+  int* semid = &(params->semid);
+  Job* job;
 
+  do{
+
+  sem_wait(*semid, 1);
+  sem_wait(*semid, 0);
+
+  // remove item from buffer
+  job = params->job_array_pointer[0];
+
+  int index = 0;
+  while (params->job_array_pointer[index] != NULL && index < params->q_size)
+    index++;
+
+  for (int i = 0; i < index - 1; i++)
+    params->job_array_pointer[i] = params->job_array_pointer[i + 1];
+
+  index--;
+  //cout << "deleting element " << index << endl;
+  params->job_array_pointer[index] = NULL;
+
+
+  sem_signal(*semid, 0);
+  sem_signal(*semid, 2);
+
+  // consumes item
+  int id = job->id;
+  int duration = job->duration;
+  printf ("Consumer: job id %i executing sleep duration %i\n", id, duration);
+  sleep(duration);
+
+}while(true);
   pthread_exit (0);
 
 }
