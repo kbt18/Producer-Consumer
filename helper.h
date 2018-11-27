@@ -22,7 +22,7 @@
 # include <iostream>
 using namespace std;
 
-# define SEM_KEY 0x77; // Change this number as needed
+# define SEM_KEY 0x376; // Change this number as needed
 
 union semun {
     int val;               /* used for SETVAL only */
@@ -57,16 +57,7 @@ struct Consumer_parameters {
   Job** job_array_pointer;
 };
 
-int sem_checkval(int id, int num);
-
-void sem_timedwait (int id, short unsigned int num, int time);
-
-// struct timespec {
-//     time_t tv_sec;      /* Seconds */
-//     long   tv_nsec;     /* Nanoseconds [0 .. 999999999] */
-// };
-
+int sem_timedwait (int id, short unsigned int num, int time);
 bool is_integer(const char* c_string);
 void valid_input(int argc, char** argv);
-
-// ~~~ TEST CODE ~~~ //
+//void delete_first();

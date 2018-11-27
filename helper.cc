@@ -91,21 +91,7 @@ void valid_input(int argc, char** argv) {
   }
 }
 
-int sem_checkval(int id, int num) {
-  int val = semctl (id, num, GETVAL, 0);
-  if (val < 0)
-    return -1;
-  return val;
-}
-
-// void signal_handler( int signal_num ) {
-//    cout << "The interrupt signal is (" << signal_num << "). \n";
-//
-//    // terminate thread
-//    pthread_exit(0);
-// }
-
-void sem_timedwait (int id, short unsigned int num, int time) {
+int sem_timedwait (int id, short unsigned int num, int time) {
   timespec ts = {
     .tv_sec = time,
     .tv_nsec = 0
@@ -114,9 +100,8 @@ void sem_timedwait (int id, short unsigned int num, int time) {
   struct sembuf op[] = {
     {num, -1, SEM_UNDO}
   };
-  
-  if (semtimedop (id, op, 1, &ts) < 0)
-    pthread_exit(0);
+
+  return semtimedop (id, op, 1, &ts);
 }
 
 // ~~~ TEST CODE ~~~ //
