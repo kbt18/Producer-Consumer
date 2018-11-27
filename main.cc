@@ -20,7 +20,7 @@ int main (int argc, char **argv)
 
   int q_size = atoi(argv[1]), n_jobs = atoi(argv[2]);
   int n_producers = atoi(argv[3]), n_consumers = atoi(argv[4]);
-  int param = 1;
+  // int param = 1;
 
   Job** job_array = new Job* [q_size];
   //initialise to NULL
@@ -39,41 +39,63 @@ int main (int argc, char **argv)
   sem_init(semid, 1, 0); //full
   sem_init(semid, 2, q_size); //empty
 
-  Producer_parameters p_params = {
-    .njobs = n_jobs,
-    .semid = semid,
-    .job_array_pointer = job_array
-  };
+  // Producer_parameters p_params = {
+  //   .njobs = n_jobs,
+  //   .semid = semid,
+  //   .job_array_pointer = job_array
+  // };
 
-  Consumer_parameters c_params = {
-    .semid = semid,
-    .q_size = q_size,
-    .job_array_pointer = job_array
-  };
+  // Consumer_parameters c_params = {
+  //   .semid = semid,
+  //   .q_size = q_size,
+  //   .job_array_pointer = job_array
+  // };
 
   pthread_t** producers = new pthread_t*[n_producers];
   for (int i = 0; i < n_producers; i++) {
+
+    Producer_parameters* p_params = new Producer_parameters;
+
+    p_params->njobs = n_jobs;
+    p_params->semid = semid;
+    p_params->producer_id = i + 1;
+    p_params->job_array_pointer = job_array;
+
     producers[i] = new pthread_t;
-    pthread_create (producers[i], NULL, producer, (void*) &p_params);
+    pthread_create (producers[i], NULL, producer, (void*) p_params);
   }
 
   pthread_t** consumers = new pthread_t*[n_consumers];
   for (int i = 0; i < n_consumers; i++) {
+
+    Consumer_parameters* c_params = new Consumer_parameters;
+
+    c_params->semid = semid;
+    c_params->q_size = q_size;
+    c_params->consumer_id = i + 1;
+    c_params->job_array_pointer = job_array;
+
     consumers[i] = new pthread_t;
-    pthread_create (consumers[i], NULL, consumer, (void*) &c_params);
+    pthread_create (consumers[i], NULL, consumer, (void*) c_params);
   }
 
-  for (int i = 0; i < n_producers; i++)
+  for (int i = 0; i < n_producers; i++) {
     pthread_join(*producers[i], NULL);
+    printf ("Producer (%i): No more jobs to generate.\n", i + 1);
+  }
 
-  for (int i = 0; i < n_consumers; i++)
+
+  for (int i = 0; i < n_consumers; i++) {
     pthread_join(*consumers[i], NULL);
+    printf ("Consumer (%i): No more jobs left.\n", i + 1);
+  }
+
 
   sem_close(semid);
 
-  for (int i = 0; i < q_size; i++)
-    cout << "job id " << (*job_array[i]).id << endl;
-
+  // for (int i = 0; i < q_size; i++)
+  //   cout << "job id " << (*job_array[i]).id << endl;
+  //cout << "end of program\n";
   pthread_exit(0);
 
   /* ~~~ EXAMPLE THREAD ~~~ */
@@ -106,7 +128,7 @@ void *producer (void *parameter)
     //cout << *njobs << endl;
     job->duration = (rand() % 10) + 1;
 
-    sem_wait(*semid, 2);
+    sem_timedwait(*semid, 2, 20);
     sem_wait(*semid, 0);
     //cout << "entering critical section" << endl;
     int index = 0;
@@ -115,7 +137,7 @@ void *producer (void *parameter)
 
     //int index = sem_checkval(*semid, 1); //gives non-deterministic behaviour
     job->id = index + 1;
-    printf ("Producer: job id %i duration %i\n", job->id, job->duration);
+    printf ("Producer(%i): job id %i duration %i\n", params->producer_id, job->id, job->duration);
 
     //cout << "adding job " << index + 1 << " at index " << index << endl;
     params->job_array_pointer[index] = job;
@@ -148,7 +170,7 @@ void *consumer (void *parameter)
 
   do{
 
-  sem_wait(*semid, 1);
+  sem_timedwait(*semid, 1, 20);
   sem_wait(*semid, 0);
 
   // remove item from buffer
@@ -172,7 +194,7 @@ void *consumer (void *parameter)
   // consumes item
   int id = job->id;
   int duration = job->duration;
-  printf ("Consumer: job id %i executing sleep duration %i\n", id, duration);
+  printf ("Consumer(%i): job id %i executing sleep duration %i\n", params->consumer_id, id, duration);
   sleep(duration);
 
 }while(true);

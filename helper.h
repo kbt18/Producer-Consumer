@@ -22,7 +22,7 @@
 # include <iostream>
 using namespace std;
 
-# define SEM_KEY 0x76; // Change this number as needed
+# define SEM_KEY 0x77; // Change this number as needed
 
 union semun {
     int val;               /* used for SETVAL only */
@@ -46,18 +46,20 @@ struct Job {
 struct Producer_parameters {
   int njobs;
   int semid;
+  int producer_id;
   Job** job_array_pointer;
 };
 
 struct Consumer_parameters {
   int semid;
   int q_size;
+  int consumer_id;
   Job** job_array_pointer;
 };
 
 int sem_checkval(int id, int num);
 
-// void sem_timedwait (int id, short unsigned int num, int time);
+void sem_timedwait (int id, short unsigned int num, int time);
 
 // struct timespec {
 //     time_t tv_sec;      /* Seconds */

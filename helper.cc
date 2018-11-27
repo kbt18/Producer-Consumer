@@ -105,9 +105,18 @@ int sem_checkval(int id, int num) {
 //    pthread_exit(0);
 // }
 
-// void sem_timedwait (int id, short unsigned int num, int time) {
-//   signal(SIGALRM, signal_handler);
-//   sem_wait (id, num);
-// }
+void sem_timedwait (int id, short unsigned int num, int time) {
+  timespec ts = {
+    .tv_sec = time,
+    .tv_nsec = 0
+  };
+
+  struct sembuf op[] = {
+    {num, -1, SEM_UNDO}
+  };
+  
+  if (semtimedop (id, op, 1, &ts) < 0)
+    pthread_exit(0);
+}
 
 // ~~~ TEST CODE ~~~ //
