@@ -22,7 +22,7 @@
 # include <iostream>
 using namespace std;
 
-# define SEM_KEY 0x376; // Change this number as needed
+# define SEM_KEY 0x387; // Change this number as needed
 
 union semun {
     int val;               /* used for SETVAL only */
@@ -37,7 +37,6 @@ void sem_wait (int, short unsigned int);
 void sem_signal (int, short unsigned int);
 int sem_close (int);
 
-// ~~~ MY HELPER FUNCTIONS ~~~ //
 struct Job {
   int id;
   int duration;
@@ -58,6 +57,19 @@ struct Consumer_parameters {
 };
 
 int sem_timedwait (int id, short unsigned int num, int time);
+// id is the id of a semaphore set.
+// num is the semaphore number in the set that you wish to wait on.
+// time is the time limit in seconds after which the semaphore will
+// stop waiting and an error code will be returned.
+
 bool is_integer(const char* c_string);
+// Checks if a string is an integer.
+
 void valid_input(int argc, char** argv);
-//void delete_first();
+// Checks if argc == 5 and if arguments 2 to 5 are integers.
+
+void create_sems(int& semid, key_t semkey, int q_size);
+// semid is the id of a semaphore set
+// semkey is a key which will be used to create the semaphore set
+// q_size is the maximum size of...
+// Creates three semaphres, mutex, empty and full.

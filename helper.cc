@@ -65,11 +65,9 @@ int sem_close (int id)
   return 0;
 }
 
-// ~~~ MY HELPER FUNCTIONS ~~~ //
 bool is_integer(const char* c_string) {
   while (*c_string != '\0') {
     if (!isdigit(*c_string)) {
-      //cerr << *c_string << endl;
       return false;
     }
     c_string++;
@@ -80,13 +78,13 @@ bool is_integer(const char* c_string) {
 void valid_input(int argc, char** argv) {
   if (argc != 5) {
     cerr << "incorrect number of command line arguments" << endl;
-    throw(1);
+    throw(-1);
   }
 
   for (int i = 1; i < argc; i++) {
     if (!is_integer(argv[i])) {
       cerr << "invalid command line argument" << endl;
-      throw(1);
+      throw(-1);
     }
   }
 }
@@ -104,4 +102,17 @@ int sem_timedwait (int id, short unsigned int num, int time) {
   return semtimedop (id, op, 1, &ts);
 }
 
-// ~~~ TEST CODE ~~~ //
+void create_sems(int& semid, key_t semkey, int q_size) {
+  semid = sem_create(semkey, 3);
+  if (semid < 0) {
+    cerr << "Error creating semaphore set.\n" << endl;
+    throw(-1);
+  }
+
+  if (sem_init(semid, 0, 1) < 0 || //mutex
+    sem_init(semid, 1, 0) < 0 || //full
+    sem_init(semid, 2, q_size) < 0) { //empty
+      cerr << "Error initialising semaphores.\n";
+      throw(-1);
+    }
+}

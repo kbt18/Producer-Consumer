@@ -2,17 +2,11 @@ CC=g++ -Wall
 
 all: main
 
-main: helper.o main.o consumer.o producer.o
-	$(CC) -pthread -o main helper.o main.o consumer.o producer.o
-
-main.o: helper.cc main.cc consumer.h producer.h
+main: helper.o main.o
+	$(CC) -pthread -o main helper.o main.o
+	
+main.o: helper.cc main.cc
 	$(CC) -c helper.cc main.cc
-
-consumer.o: consumer.cc consumer.h helper.h
-	$(CC) -c consumer.cc -o consumer.o
-
-producer.o: producer.cc producer.h helper.h
-	$(CC) -c producer.cc -o producer.o
 
 tidy:
 	rm -f *.o core
