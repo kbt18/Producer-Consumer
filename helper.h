@@ -6,6 +6,8 @@
 // #include <signal.h>
 // #include <semaphore.h>
 
+#include <boost/circular_buffer.hpp>
+
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -42,10 +44,13 @@ struct Job {
   int duration;
 };
 
+typedef boost::circular_buffer<Job*>* cb_ptr;
+
 struct Producer_parameters {
   int njobs;
   int semid;
   int producer_id;
+  cb_ptr ring_buff;
   Job** job_array_pointer;
 };
 
@@ -53,6 +58,7 @@ struct Consumer_parameters {
   int semid;
   int q_size;
   int consumer_id;
+  cb_ptr ring_buff;
   Job** job_array_pointer;
 };
 

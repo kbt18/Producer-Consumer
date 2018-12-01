@@ -22,6 +22,9 @@ int main (int argc, char **argv)
   int n_producers = atoi(argv[3]);
   int n_consumers = atoi(argv[4]);
 
+  typedef boost::circular_buffer<Job*> circular_buffer;
+  circular_buffer cb{(long unsigned int)q_size};
+
   Job** job_array = new Job* [q_size];
   for (int i = 0; i < q_size; i++)
     job_array[i] = NULL;
@@ -42,11 +45,13 @@ int main (int argc, char **argv)
     p_params->njobs = n_jobs;
     p_params->semid = semid;
     p_params->producer_id = i + 1;
+    p_params->ring_buff = &cb;
     p_params->job_array_pointer = job_array;
 
     producers[i] = new pthread_t;
     if (pthread_create (producers[i], NULL, producer, (void*) p_params) != 0) {
         cerr << "Error creating producer thread.\n";
+        //must close other threads!!
         return (-1);
     }
   }
@@ -59,11 +64,13 @@ int main (int argc, char **argv)
     c_params->semid = semid;
     c_params->q_size = q_size;
     c_params->consumer_id = i + 1;
+    c_params->ring_buff = &cb;
     c_params->job_array_pointer = job_array;
 
     consumers[i] = new pthread_t;
     if (pthread_create (consumers[i], NULL, consumer, (void*) c_params) != 0) {
       cerr << "Error creating consumer thread.\n";
+      //must close other threads!
       return -1;
     };
   }
@@ -90,6 +97,7 @@ void *producer (void *parameter)
   int* semid = &(params->semid);
   int* njobs = &(params->njobs);
   int* p_id = &(params->producer_id);
+  cb_ptr cb = params->ring_buff;
   Job** job_array = params->job_array_pointer;
 
   while (*njobs > 0) {
@@ -103,11 +111,14 @@ void *producer (void *parameter)
     }
     sem_wait(*semid, 0);
 
-    int index = 0;
-    while (job_array[index] != NULL) //will always be a space
-      index++;
-    job->id = index + 1;
-    job_array[index] = job;
+    job->id = cb->size() + 1;
+    cb->push_back(job);
+
+    // int index = 0;
+    // while (job_array[index] != NULL) //will always be a space
+    //   index++;
+    // job->id = index + 1;
+    // job_array[index] = job;
 
     sem_signal(*semid, 0);
     sem_signal(*semid, 1);
@@ -128,6 +139,7 @@ void *consumer (void *parameter)
   int* semid = &(params->semid);
   int* q_size = &(params->q_size);
   int* c_id = &(params->consumer_id);
+  cb_ptr cb = params->ring_buff;
   Job** jobs = params->job_array_pointer;
 
   do {
@@ -137,17 +149,19 @@ void *consumer (void *parameter)
     }
     sem_wait(*semid, 0);
 
-    Job* job = jobs[0];
+    Job* job = cb->front();
+    cb->pop_front();
+    //Job* job = jobs[0];
 
-    int index = 0;
-    while (jobs[index] != NULL && index < *q_size)
-      index++;
+    // int index = 0;
+    // while (jobs[index] != NULL && index < *q_size)
+    //   index++;
+    //
+    // for (int i = 0; i < index - 1; i++)
+    //   jobs[i] = jobs[i + 1];
 
-    for (int i = 0; i < index - 1; i++)
-      jobs[i] = jobs[i + 1];
-
-    index--;
-    jobs[index] = NULL;
+    // index--;
+    // jobs[index] = NULL;
 
     sem_signal(*semid, 0);
     sem_signal(*semid, 2);
