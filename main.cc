@@ -92,7 +92,7 @@ void *producer (void *parameter)
     job->duration = (rand() % 10) + 1;
 
     if (sem_timedwait(*semid, 2, 20) < 0) {
-      printf ("Producer (%i): Died waiting for a space in the queue.\n", *p_id);
+      printf ("Producer(%i): Died waiting for a space in the queue.\n", *p_id);
       pthread_exit(0);
     }
     sem_wait(*semid, 0);
@@ -109,7 +109,7 @@ void *producer (void *parameter)
     sleep((rand() % 5) + 1);
   }
 
-  printf ("Producer (%i): No more jobs to generate.\n", *p_id);
+  printf ("Producer(%i): No more jobs to generate.\n", *p_id);
   pthread_exit(0);
 }
 
@@ -122,7 +122,7 @@ void *consumer (void *parameter)
 
   do {
     if (sem_timedwait(*semid, 1, 20) < 0) {
-      printf ("Consumer (%i): No more jobs left.\n", *c_id);
+      printf ("Consumer(%i): No more jobs left.\n", *c_id);
       pthread_exit(0);
     }
     sem_wait(*semid, 0);
