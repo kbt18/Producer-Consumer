@@ -3,8 +3,6 @@
  * required header files, as well as the function signatures and
  * the semaphore values (which are to be changed as needed).
  ******************************************************************/
-// #include <signal.h>
-// #include <semaphore.h>
 
 #include <boost/circular_buffer.hpp>
 
@@ -24,7 +22,7 @@
 # include <iostream>
 using namespace std;
 
-# define SEM_KEY 0x387; // Change this number as needed
+# define SEM_KEY 0x387712; // Change this number as needed
 
 union semun {
     int val;               /* used for SETVAL only */
@@ -51,15 +49,12 @@ struct Producer_parameters {
   int semid;
   int producer_id;
   cb_ptr ring_buff;
-  Job** job_array_pointer;
 };
 
 struct Consumer_parameters {
   int semid;
-  int q_size;
   int consumer_id;
   cb_ptr ring_buff;
-  Job** job_array_pointer;
 };
 
 int sem_timedwait (int id, short unsigned int num, int time);
@@ -71,10 +66,10 @@ int sem_timedwait (int id, short unsigned int num, int time);
 bool is_integer(const char* c_string);
 // Checks if a string is an integer.
 
-void valid_input(int argc, char** argv);
+bool is_valid_input(int argc, char** argv);
 // Checks if argc == 5 and if arguments 2 to 5 are integers.
 
-void create_sems(int& semid, key_t semkey, int q_size);
+int create_sems(int& semid, key_t semkey, int q_size);
 // semid is the id of a semaphore set
 // semkey is a key which will be used to create the semaphore set
 // q_size is the maximum size of...
